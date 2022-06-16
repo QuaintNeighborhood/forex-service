@@ -49,12 +49,14 @@ server.start().then(res => {
   const ONE_HOUR_IN_MS: number = 3600000;
   const httpServer: http.Server = http.createServer(app);
   const PORT: any = process.env.APP_PORT ?? 5000;
-  httpServer.listen(PORT, () => {
+  httpServer.listen(PORT, async () => {
     console.log(`The server is running on port ${PORT}`);
     console.log(`gql path is ${server.graphqlPath}`);
-    setInterval(() => {
+    console.log('Populating cache with USD-SGD, USD-HKD pairs');
+    await refreshCache();
+    setInterval(async () => {
       console.log('Refreshing cache every 1 hour');
-      refreshCache();
+      await refreshCache();
     }, ONE_HOUR_IN_MS);
   });
 });
