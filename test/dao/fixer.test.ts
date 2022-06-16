@@ -11,9 +11,9 @@ describe("getRateFromFixer", () => {
         data: {
           success: true,
           rates: {
-            "SGD": 1.5
-          }
-        }
+            SGD: 1.5,
+          },
+        },
       });
       const res = await getRateFromFixer("USD", "SGD");
       expect(res).toEqual("1.5");
@@ -25,18 +25,16 @@ describe("getRateFromFixer", () => {
       mockedAxios.get.mockResolvedValueOnce({
         data: {
           error: {
-            "code": 201,
-            "type": "invalid_base_currency"
-          }
-        }
+            code: 201,
+            type: "invalid_base_currency",
+          },
+        },
       });
       const res = await getRateFromFixer("AAA", "SGD");
-      expect(res).toEqual(
-        {
-          "code": 201,
-          "type": "invalid_base_currency"
-        }
-      );
+      expect(res).toEqual({
+        code: 201,
+        type: "invalid_base_currency",
+      });
     });
   });
 
@@ -45,20 +43,18 @@ describe("getRateFromFixer", () => {
       mockedAxios.get.mockResolvedValueOnce({
         data: {
           error: {
-            "code": 202,
-            "type": "invalid_currency_codes",
-            "info": "You have provided one or more invalid Currency Codes. [Required format: currencies=EUR,USD,GBP,...]"
-          }
-        }
+            code: 202,
+            type: "invalid_currency_codes",
+            info: "You have provided one or more invalid Currency Codes. [Required format: currencies=EUR,USD,GBP,...]",
+          },
+        },
       });
       const res = await getRateFromFixer("AAA", "SGD");
-      expect(res).toEqual(
-        {
-          "code": 202,
-          "type": "invalid_currency_codes",
-          "info": "You have provided one or more invalid Currency Codes. [Required format: currencies=EUR,USD,GBP,...]"
-        }
-      );
+      expect(res).toEqual({
+        code: 202,
+        type: "invalid_currency_codes",
+        info: "You have provided one or more invalid Currency Codes. [Required format: currencies=EUR,USD,GBP,...]",
+      });
     });
   });
 });
