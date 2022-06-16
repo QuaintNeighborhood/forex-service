@@ -8,6 +8,10 @@ const ONE_HOUR_IN_SECONDS: number = 216000;
 const cache: CacheContainer = new CacheContainer(new MemoryStorage());
 
 const getRateFromFixer = async (base: string, symbol: string) => {
+  if (base === symbol) {
+    return "1";
+  }
+
   let response: any = await getRateFromCacheIfPresent(base, symbol);
   if (!response) {
     await axios.get(`https://api.apilayer.com/fixer/latest?base=${base}&symbols=${symbol}`, {
