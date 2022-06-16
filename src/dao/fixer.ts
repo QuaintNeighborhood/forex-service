@@ -8,8 +8,7 @@ const ONE_HOUR_IN_SECONDS: number = 216000;
 const cache: CacheContainer = new CacheContainer(new MemoryStorage());
 
 const getRateFromFixer = async (base: string, symbol: string) => {
-  const currencyPair: string = base + '-' + symbol;
-  let response: any = await cache.getItem<string>(currencyPair);
+  let response: any = await getRateFromCacheIfPresent(base, symbol);
   if (!response) {
     await axios.get(`https://api.apilayer.com/fixer/latest?base=${base}&symbols=${symbol}`, {
       headers: {
@@ -19,6 +18,7 @@ const getRateFromFixer = async (base: string, symbol: string) => {
     .then(async (res) => {
       if (res.data.success) {
         response = String(res.data.rates[symbol]);
+        const currencyPair: string = base + '-' + symbol;
         await cache.setItem(currencyPair, response, {ttl: ONE_HOUR_IN_SECONDS});
       } else {
         response = res.data.error;
@@ -47,13 +47,25 @@ const getRateFromFixer = async (base: string, symbol: string) => {
     });
   }
   return response;
-}
+};
+
+const getRateFromCacheIfPresent = async (base: string, symbol: string) => {
+  const currencyPair: string = base + '-' + symbol;
+  const rate: any = await cache.getItem<string>(currencyPair);
+  if (!rate) {
+    const reverseCurrencyPair: string = symbol + '-' + base;
+    const reverseRate: any = await cache.getItem<string>(reverseCurrencyPair);
+    if (!reverseRate) {
+      return null;
+    }
+    return (1 / reverseRate).toFixed(6);
+  }
+  return rate;
+};
 
 const refreshCache = async () => {
   await getRateFromFixer("USD", "SGD");
-  await getRateFromFixer("SGD", "USD");
   await getRateFromFixer("USD", "HKD");
-  await getRateFromFixer("HKD", "USD");
-}
+};
 
 export { getRateFromFixer, refreshCache };
