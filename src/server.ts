@@ -53,7 +53,7 @@ server.start().then(res => {
     console.log(`The server is running on port ${PORT}`);
     console.log(`gql path is ${server.graphqlPath}`);
     console.log('Populating cache with USD-SGD, USD-HKD pairs');
-    await refreshCache();
+    // await refreshCache();
     setInterval(async () => {
       console.log('Refreshing cache every 1 hour');
       await refreshCache();
