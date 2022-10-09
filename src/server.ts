@@ -1,34 +1,37 @@
-import http from 'http';
-import dotenv from 'dotenv';
-import express, { Express } from 'express';
-import morgan from 'morgan';
-import routes from './routes/forex';
-import { setInterval } from 'timers';
-import { ApolloServer, gql } from 'apollo-server-express';
-import { getForexApollo } from './controllers/forex';
-import { refreshCache } from './dao/fixer';
+import http from "http";
+import dotenv from "dotenv";
+import express, { Express } from "express";
+import morgan from "morgan";
+import routes from "./routes/forex";
+import { setInterval } from "timers";
+import { ApolloServer, gql } from "apollo-server-express";
+import { getForexApollo } from "./controllers/forex";
+import { refreshCache } from "./dao/fixer";
 
 // load the environment variables from the .env file
 dotenv.config({
-  path: '.env'
+  path: ".env",
 });
 
 const app: Express = express();
 
 /** Logging */
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 
 /** RULES OF OUR API */
 app.use((req, res, next) => {
   // set the CORS policy
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header("Access-Control-Allow-Origin", "*");
   // set the CORS headers
-  res.header('Access-Control-Allow-Headers', 'origin, X-Requested-With,Content-Type,Accept, Authorization');
+  res.header(
+    "Access-Control-Allow-Headers",
+    "origin, X-Requested-With,Content-Type,Accept, Authorization"
+  );
   next();
 });
 
 /** Routes */
-app.use('/', routes);
+app.use("/", routes);
 
 const server = new ApolloServer({
   typeDefs: gql`
@@ -38,13 +41,13 @@ const server = new ApolloServer({
   `,
   resolvers: {
     Query: {
-      rate: getForexApollo
-    }
+      rate: getForexApollo,
+    },
   },
-  csrfPrevention: true
+  csrfPrevention: true,
 });
 
-server.start().then(res => {
+server.start().then((res) => {
   server.applyMiddleware({ app });
   const ONE_HOUR_IN_MS: number = 3600000;
   const httpServer: http.Server = http.createServer(app);
@@ -52,10 +55,10 @@ server.start().then(res => {
   httpServer.listen(PORT, async () => {
     console.log(`The server is running on port ${PORT}`);
     console.log(`gql path is ${server.graphqlPath}`);
-    console.log('Populating cache with USD-SGD, USD-HKD pairs');
+    console.log("Populating cache with USD-SGD, USD-HKD pairs");
     // await refreshCache();
     setInterval(async () => {
-      console.log('Refreshing cache every 1 hour');
+      console.log("Refreshing cache every 1 hour");
       await refreshCache();
     }, ONE_HOUR_IN_MS);
   });
